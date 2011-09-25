@@ -3,35 +3,100 @@
 ' **  Copyright (c) 2009 Roku Inc. All Rights Reserved.
 ' ********************************************************************
 
-Sub Main(args As Dynamic)
+Sub Main()
     'initialize theme attributes like titles, logos and overhang color
     initTheme()
 
-    if type(args) = "roAssociativeArray" and type(args.url) = "roString" then
-        displayVideo(args)
+    'prepare the screen for display and get ready to begin
+    screen=preShowPosterScreen("", "")
+    if screen=invalid then
+        print "unexpected error in preShowPosterScreen"
+        return
     end if
-    print "Type args = "; type(args)
-    print "Type args.url = "; type(args.url)
-
+ 
+    'set to go, time to get started
+    showPosterScreen(screen)
+ 
     'has to live for the duration of the whole app to prevent flashing
     'back to the roku home screen.
-    screenFacade = CreateObject("roPosterScreen")
-    screenFacade.show()
+    'screenFacade = CreateObject("roPosterScreen")
+    'screenFacade.show()
 
-    itemMpeg4 = {   ContentType:"episode"
-               SDPosterUrl:"file://pkg:/images/DanGilbert.jpg"
-               HDPosterUrl:"file://pkg:/images/DanGilbert.jpg"
-               IsHD:False
-               HDBranded:False
-               ShortDescriptionLine1:"Dan Gilbert asks, Why are we happy?"
-               ShortDescriptionLine2:""
-               Description:"Harvard psychologist Dan Gilbert says our beliefs about what will make us happy are often wrong -- a premise he supports with intriguing research, and explains in his accessible and unexpectedly funny book, Stumbling on Happiness."
-               Rating:"NR"
-               StarRating:"80"
-               Length:1280
-               Categories:["Technology","Talk"]
-               Title:"Dan Gilbert asks, Why are we happy?"
-               }
+    'showChoices()
+ 
+    'exit the app gently so that the screen doesn't flash to black
+    'screenFacade.showMessage("")
+    'sleep(25)
+End Sub
+
+'******************************************************
+'** Perform any startup/initialization stuff prior to 
+'** initially showing the screen.  
+'******************************************************
+Function preShowPosterScreen(breadA=invalid, breadB=invalid) As Object
+
+    port=CreateObject("roMessagePort")
+    screen = CreateObject("roPosterScreen")
+    screen.SetMessagePort(port)
+    if breadA<>invalid and breadB<>invalid then
+        screen.SetBreadcrumbText(breadA, breadB)
+    end if
+
+    screen.SetListStyle("arced-landscape")
+    return screen
+
+End Function
+
+
+'******************************************************
+'** Display the poster screen and wait for events from 
+'** the screen. The screen will show retreiving while
+'** we fetch and parse the feeds for the show posters
+'******************************************************
+Function showPosterScreen(screen As Object) As Integer
+
+    categoryList = getCategoryList()
+    screen.SetListNames(categoryList)
+    screen.SetContentList(getShowsForCategoryItem(categoryList[0]))
+    screen.Show()
+
+    while true
+        msg = wait(0, screen.GetMessagePort())
+        if type(msg) = "roPosterScreenEvent" then
+            print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
+            if msg.isListFocused() then
+                'get the list of shows for the currently selected item
+                screen.SetContentList(getShowsForCategoryItem(categoryList[msg.GetIndex()]))
+                print "list focused | current category = "; msg.GetIndex()
+            else if msg.isListItemFocused() then
+                print"list item focused | current show = "; msg.GetIndex()
+            else if msg.isListItemSelected() then
+                print "list item selected | current show = "; msg.GetIndex() 
+                'if you had a list of shows, the index of the current item 
+                'is probably the right show, so you'd do something like this
+                'm.curShow = displayShowDetailScreen(showList[msg.GetIndex()])
+                displayBase64()
+            else if msg.isScreenClosed() then
+                return -1
+            end if
+        end If
+    end while
+
+
+End Function
+
+Sub showChoices()
+    screen = CreateObject("roPosterScreen")
+    screen.SetBreadcrumbText("", "breadcrumb")
+    screen.SetListStyle("flat-category")
+    screen.Show()
+    content = []
+    content.Push({
+                SDPosterUrl: "pkg:/images/MainMenu_Icon_Side_SD43.png"
+                HDPosterUrl: "pkg:/images/MainMenu_Icon_Side_HD.png"
+                ShortDescriptionLine1: "Something contentish"
+            })
+    screen.SetContentList(content)
 
     itemVenter = { ContentType:"episode"
                SDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
@@ -47,29 +112,7 @@ Sub Main(args As Dynamic)
                Categories:["Technology","Talk"]
                Title:"Craig Venter asks, Can we create new life out of our digital universe?"
                }
-
-    item = {   ContentType:"episode"
-               SDPosterUrl:"file://pkg:/images/BigBuckBunny.jpg"
-               HDPosterUrl:"file://pkg:/images/BigBuckBunny.jpg"
-               IsHD:true
-               HDBranded:true
-               ShortDescriptionLine1:"Big Buck Bunny"
-               ShortDescriptionLine2:""
-               Description:"Big Buck Bunny is being served using a Wowza server running on Amazon EC2 cloud services. The video is transported via HLS HTTP Live Streaming. A team of small artists from the Blender community produced this open source content..."
-               Rating:"NR"
-               StarRating:"80"
-               Length:600
-               Categories:["Technology","Cartoon"]
-               Title:"Big Buck Bunny"
-            }
-
-    showSpringboardScreen(itemVenter)  
-   'showSpringboardScreen(itemMpeg4)  'uncomment this line and comment out the next to see the old mpeg4 example
-   'showSpringboardScreen(item)       'uncomment this line to see the BigBuckBunny example
-    
-    'exit the app gently so that the screen doesn't flash to black
-    screenFacade.showMessage("")
-    sleep(25)
+    'showSpringboardScreen(itemVenter)
 End Sub
 
 '*************************************************************
@@ -251,5 +294,81 @@ Function displayVideo(args As Dynamic)
             endif
         end if
     end while
+End Function
+
+
+Function displayBase64()
+    ba = CreateObject("roByteArray")
+    str = "Aladdin:open sesame"
+    ba.FromAsciiString(str)
+    result = ba.ToBase64String() 
+    print result
+
+    ba2 = CreateObject("roByteArray")
+    ba2.FromBase64String(result)
+    result2 = ba2.ToAsciiString()
+    print result2
+End Function
+
+'**********************************************************
+'** When a poster on the home screen is selected, we call
+'** this function passing an roAssociativeArray with the 
+'** ContentMetaData for the selected show.  This data should 
+'** be sufficient for the springboard to display
+'**********************************************************
+Function displayShowDetailScreen(category as Object, showIndex as Integer) As Integer
+
+    'add code to create springboard, for now we do nothing
+    return 1
+
+End Function
+
+
+'**************************************************************
+'** Return the list of categories to display in the filter
+'** banner. The result is an roArray containing the names of 
+'** all of the categories. All just static data for the example.
+'***************************************************************
+Function getCategoryList() As Object
+
+    categoryList = CreateObject("roArray", 10, true)
+
+    categoryList = [ "Comedy", "Drama", "News", "Reality", "Daytime"  ]
+    return categoryList
+
+End Function
+
+
+'********************************************************************
+'** Given the category from the filter banner, return an array 
+'** of ContentMetaData objects (roAssociativeArray's) representing 
+'** the shows for the category. For this example, we just cheat and
+'** create and return a static array with just the minimal items
+'** set, but ideally, you'd go to a feed service, fetch and parse
+'** this data dynamically, so content for each category is dynamic
+'********************************************************************
+Function getShowsForCategoryItem(category As Object) As Object
+
+    print "getting shows for category "; category
+
+    showList = [
+        {
+            ShortDescriptionLine1:"Show #1",
+            ShortDescriptionLine2:"Short Description for Show #1",
+        }
+        {
+            ShortDescriptionLine1:"Show #2",
+            ShortDescriptionLine2:"Short Description for Show #2",
+            HDPosterUrl:"pkg:/media/bogusFileName_hd.jpg",
+            SDPosterUrl:"pkg:/media/bogusFileName_hd.jpg"
+        }
+        {
+            ShortDescriptionLine1:"Show #3",
+            ShortDescriptionLine2:"Short Description for Show #3",
+        }
+    ]
+
+    return showList
+
 End Function
 
