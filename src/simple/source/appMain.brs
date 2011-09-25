@@ -17,16 +17,30 @@ Sub Main()
     'set to go, time to get started
     showPosterScreen(screen)
  
-    'has to live for the duration of the whole app to prevent flashing
-    'back to the roku home screen.
-    'screenFacade = CreateObject("roPosterScreen")
-    'screenFacade.show()
+End Sub
 
-    'showChoices()
- 
-    'exit the app gently so that the screen doesn't flash to black
-    'screenFacade.showMessage("")
-    'sleep(25)
+'*************************************************************
+'** Set the configurable theme attributes for the application
+'** 
+'** Configure the custom overhang and Logo attributes
+'*************************************************************
+Sub initTheme()
+
+    app = CreateObject("roAppManager")
+    theme = CreateObject("roAssociativeArray")
+
+    theme.OverhangPrimaryLogoOffsetSD_X = "72"
+    theme.OverhangPrimaryLogoOffsetSD_Y = "15"
+    theme.OverhangSliceSD = "pkg:/images/Overhang_BackgroundSlice_SD43.png"
+    theme.OverhangPrimaryLogoSD  = "pkg:/images/Logo_Overhang_SD43.png"
+
+    theme.OverhangPrimaryLogoOffsetHD_X = "123"
+    theme.OverhangPrimaryLogoOffsetHD_Y = "20"
+    theme.OverhangSliceHD = "pkg:/images/Overhang_BackgroundSlice_HD.png"
+    theme.OverhangPrimaryLogoHD  = "pkg:/images/Logo_Overhang_HD.png"
+    
+    app.SetTheme(theme)
+
 End Sub
 
 '******************************************************
@@ -34,19 +48,15 @@ End Sub
 '** initially showing the screen.  
 '******************************************************
 Function preShowPosterScreen(breadA=invalid, breadB=invalid) As Object
-
     port=CreateObject("roMessagePort")
     screen = CreateObject("roPosterScreen")
     screen.SetMessagePort(port)
     if breadA<>invalid and breadB<>invalid then
         screen.SetBreadcrumbText(breadA, breadB)
     end if
-
-    screen.SetListStyle("arced-landscape")
+    screen.SetListStyle("flat-category")
     return screen
-
 End Function
-
 
 '******************************************************
 '** Display the poster screen and wait for events from 
@@ -75,7 +85,7 @@ Function showPosterScreen(screen As Object) As Integer
                 'if you had a list of shows, the index of the current item 
                 'is probably the right show, so you'd do something like this
                 'm.curShow = displayShowDetailScreen(showList[msg.GetIndex()])
-                displayBase64()
+                showSpringboardScreen(msg)
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -88,7 +98,7 @@ End Function
 Sub showChoices()
     screen = CreateObject("roPosterScreen")
     screen.SetBreadcrumbText("", "breadcrumb")
-    screen.SetListStyle("flat-category")
+    
     screen.Show()
     content = []
     content.Push({
@@ -98,61 +108,41 @@ Sub showChoices()
             })
     screen.SetContentList(content)
 
-    itemVenter = { ContentType:"episode"
-               SDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
-               HDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
-               IsHD:False
-               HDBranded:False
-               ShortDescriptionLine1:"Can we create new life out of our digital universe?"
-               ShortDescriptionLine2:""
-               Description:"He walks the TED2008 audience through his latest research into fourth-generation fuels -- biologically created fuels with CO2 as their feedstock. His talk covers the details of creating brand-new chromosomes using digital technology, the reasons why we would want to do this, and the bioethics of synthetic life. A fascinating Q&A with TED's Chris Anderson follows."
-               Rating:"NR"
-               StarRating:"80"
-               Length:1972
-               Categories:["Technology","Talk"]
-               Title:"Craig Venter asks, Can we create new life out of our digital universe?"
-               }
+    
     'showSpringboardScreen(itemVenter)
 End Sub
 
-'*************************************************************
-'** Set the configurable theme attributes for the application
-'** 
-'** Configure the custom overhang and Logo attributes
-'*************************************************************
 
-Sub initTheme()
-
-    app = CreateObject("roAppManager")
-    theme = CreateObject("roAssociativeArray")
-
-    theme.OverhangPrimaryLogoOffsetSD_X = "72"
-    theme.OverhangPrimaryLogoOffsetSD_Y = "15"
-    theme.OverhangSliceSD = "pkg:/images/Overhang_BackgroundSlice_SD43.png"
-    theme.OverhangPrimaryLogoSD  = "pkg:/images/Logo_Overhang_SD43.png"
-
-    theme.OverhangPrimaryLogoOffsetHD_X = "123"
-    theme.OverhangPrimaryLogoOffsetHD_Y = "20"
-    theme.OverhangSliceHD = "pkg:/images/Overhang_BackgroundSlice_HD.png"
-    theme.OverhangPrimaryLogoHD  = "pkg:/images/Logo_Overhang_HD.png"
-    
-    app.SetTheme(theme)
-
-End Sub
 
 
 '*************************************************************
 '** showSpringboardScreen()
 '*************************************************************
 
-Function showSpringboardScreen(item as object) As Boolean
+Function showSpringboardScreen(msg as object) As Boolean
     port = CreateObject("roMessagePort")
     screen = CreateObject("roSpringboardScreen")
 
-    print "showSpringboardScreen"
+    print "showSpringboardScreen on ";msg
     
     screen.SetMessagePort(port)
     screen.AllowUpdates(false)
+    
+    item = { ContentType:"episode"
+               SDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
+               HDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
+               IsHD:False
+               HDBranded:False
+               ShortDescriptionLine1:"Some hard-coded text here."
+               ShortDescriptionLine2:""
+               Description:"More descriptions here."
+               Rating:"NR"
+               StarRating:"80"
+               Length:1972
+               Categories:["Technology","Talk"]
+               Title:"Craig Venter asks, Can we create new life out of our digital universe?"
+               }
+               
     if item <> invalid and type(item) = "roAssociativeArray"
         screen.SetContent(item)
     endif
