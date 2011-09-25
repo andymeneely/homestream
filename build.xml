@@ -23,7 +23,7 @@
             commons-codec-1.4.jar -->
 
 	<!-- set global properties for this build -->
-	<property name="app.name" value="simple" />
+	<property name="app.name" value="homestream" />
 	<property name="src" location="${basedir}/src/${app.name}" />
 	<property name="dist.dir" location="${basedir}/dist" />
 	<!-- load environment specific properties -->
