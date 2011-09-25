@@ -1,9 +1,7 @@
-title=Home Stream
-subtitle=streams stuff from home
-mm_icon_focus_hd=pkg:/images/mm-icon-focus-hd.jpg
-mm_icon_side_hd=pkg:/images/mm-icon-side-hd.jpg
-mm_icon_focus_sd=pkg:/images/mm-icon-focus-sd.jpg
-mm_icon_side_sd=pkg:/images/mm-icon-side-sd.jpg
-major_version=1
-minor_version=0
-build_version=00000
+title=Hardcoded Video Player
+subtitle=Andy's hacktastic video player
+mm_icon_focus_hd=pkg:/images/MainMenu_Icon_Center_HD.png
+mm_icon_side_hd=pkg:/images/MainMenu_Icon_Side_HD.png
+mm_icon_focus_sd=pkg:/images/MainMenu_Icon_Center_SD43.png
+mm_icon_side_sd=pkg:/images/MainMenu_Icon_Side_SD43.png
+
