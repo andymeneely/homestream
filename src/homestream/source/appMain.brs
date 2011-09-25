@@ -76,16 +76,17 @@ Function showPosterScreen(screen As Object) As Integer
             print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
             if msg.isListFocused() then
                 'get the list of shows for the currently selected item
-                screen.SetContentList(getShowsForCategoryItem(categoryList[msg.GetIndex()]))
+               videos=getShowsForCategoryItem(categoryList[msg.GetIndex()])
+               screen.SetContentList(videos)
                 print "list focused | current category = "; msg.GetIndex()
             else if msg.isListItemFocused() then
                 print"list item focused | current show = "; msg.GetIndex()
             else if msg.isListItemSelected() then
-                print "list item selected | current show = "; msg.GetIndex() 
+                print "list item selected | show index = "; msg.GetIndex();"show: ";videos[msg.GetIndex()]
                 'if you had a list of shows, the index of the current item 
                 'is probably the right show, so you'd do something like this
                 'm.curShow = displayShowDetailScreen(showList[msg.GetIndex()])
-                showSpringboardScreen(msg)
+                showSpringboardScreen(videos[msg.GetIndex()])
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -138,9 +139,6 @@ Function showSpringboardScreen(msg as object) As Boolean
 
     downKey=3
     selectKey=6
-    
-    
-    printFeed()
     
     while true
         msg = wait(0, screen.GetMessagePort())
@@ -300,10 +298,7 @@ Function getShowsForCategoryItem(category As Object) As Object
         }]
 
     if category = "Videos"
-        showList = [
-        {
-            ShortDescriptionLine1:"The only one show available",
-        }]
+        showList = getVideoList() 
     end if
 
     return showList
@@ -316,10 +311,10 @@ End Function
 '** stored hierarchically with parent/child relationships
 '** with a single default node named Root at the root of the tree
 '******************************************************************
-Function printFeed() As Dynamic
+Function getVideoList() As Dynamic
 
     'http = NewHttp("http://192.168.0.3/videos/feed.xml")
-    http = NewHttp("http://192.168.0.3/videos/categories.xml")
+    http = NewHttp("http://192.168.0.3/videos/feed.php")
 
     print "url: "; http.Http.GetUrl()
 
@@ -336,24 +331,25 @@ Function printFeed() As Dynamic
     'Dbg("Parse Took: ", m.Timer)
 
     'm.Timer.Mark()
-    if xml.category = invalid then
-        print "no categories tag"
+    if xml.videos = invalid then
+        print "no videos tag"
         return invalid
     endif
 
-    if xml.category[0].GetName() <> "category" then
-        print "no initial category tag"
-        return invalid
-    endif
+    print "begin video node parsing"
+    xmllist = xml.GetNamedElements("video")
 
-    print "begin category node parsing"
-
-    categories = xml.GetChildElements()
-    print "number of categories: " + itostr(categories.Count())
-    for each element in categories 
-        print element@Description
+    video = []
+    for each v in xmllist
+        print "Adding file: ";v@file
+        video.Push({
+            ShortDescriptionLine1: v@file,
+            URL: v@file,
+        })
     next
     
-    return xml
+    print "done video node parsing"
+    
+    return video
 
 End Function
