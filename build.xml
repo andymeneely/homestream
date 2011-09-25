@@ -1,0 +1,62 @@
+<project name="build-roku-app" default="compile" basedir=".">
+
+	<!--
+	xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+	<artifact:dependencies pathId="dependency.classpath">
+		<dependency groupId="ant-contrib" artifactId="ant-contrib"  />
+	</artifact:dependencies>
+	-->
+
+	<description>
+            A simple Ant build file that bundles the source and images folders into a zip
+           and pushes it to your Roku (see local.properties for configuration).       
+        </description>
+
+
+	<!-- deploy task requires fikin-ant tasks and dependent libraries -->
+
+	<!-- http://www.postbin.org/1ktfgc2 -->
+	<!-- requires the following JARs:
+            fikin-ant-1.7.3.jar
+            commons-httpclient-3.1.jar
+            commons-logging-1.1.1.jar
+            commons-codec-1.4.jar -->
+
+	<!-- set global properties for this build -->
+	<property name="app.name" value="simple" />
+	<property name="src" location="${basedir}/src/${app.name}" />
+	<property name="dist.dir" location="${basedir}/dist" />
+	<!-- load environment specific properties -->
+	<property file="local.properties" />
+
+	<!-- 
+	<target name="post">
+		<post to="http://www.postbin.org/1ktfgc2" verbose="true">
+			<prop name="prop1" value="something" />
+		</post>
+	</target>
+	-->
+
+	<target name="init">
+		<tstamp />
+	</target>
+
+	<!-- "compile" all resources, possibly do some filtering etc -->
+	<target name="compile" depends="init">
+		<zip basedir="${src}" destfile="${dist.dir}/${app.name}.zip" />
+	</target>
+
+	<!--
+	<target name="deploy" depends="dist">
+		<echo message="Deploying application to Roku at http://${ROKU_DEV_TARGET}" />
+		<httpmpost url="http://${ROKU_DEV_TARGET}/plugin_install">
+			<postFile name="archive" file="${distfile}" />
+			<poststring name="mysubmit" value="Install" />
+		</httpmpost>
+	</target>
+		-->
+
+	<target name="clean">
+		<delete dir="${dist}" />
+	</target>
+</project>

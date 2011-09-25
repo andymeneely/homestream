@@ -1,4 +1,4 @@
- ********************************************************************
+' ********************************************************************
 ' **  Andy's Hardcoded Video Play
 ' **  Copyright (c) 2009 Roku Inc. All Rights Reserved.
 ' ********************************************************************
@@ -169,7 +169,7 @@ Function displayVideo(args As Dynamic)
     bitrates  = [0]    
 
     'Swap the commented values below to play different video clips...
-    urls = ["http://192.168.0.3/videos/"]
+    urls = ["http://192.168.0.3/videos/DAMAGES_SEASON_3_DISC_1-1.m4v"]
     qualities = ["SD"]
     StreamFormat = "mp4"
     title = "Damages, Episode 3-1"
