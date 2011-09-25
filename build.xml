@@ -1,11 +1,12 @@
-<project name="build-roku-app" default="compile" basedir=".">
+<project name="build-roku-app" default="deploy" basedir="." xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
 	<!--
-	xmlns:artifact="antlib:org.apache.maven.artifact.ant"
-	<artifact:dependencies pathId="dependency.classpath">
-		<dependency groupId="ant-contrib" artifactId="ant-contrib"  />
-	</artifact:dependencies>
 	-->
+	<artifact:dependencies pathId="dependency.classpath">
+		<dependency groupId="ant-contrib" artifactId="ant-contrib" version="1.0b3" />
+	</artifact:dependencies>
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="dependency.classpath" />
 
 	<description>
             A simple Ant build file that bundles the source and images folders into a zip
@@ -29,14 +30,6 @@
 	<!-- load environment specific properties -->
 	<property file="local.properties" />
 
-	<!-- 
-	<target name="post">
-		<post to="http://www.postbin.org/1ktfgc2" verbose="true">
-			<prop name="prop1" value="something" />
-		</post>
-	</target>
-	-->
-
 	<target name="init">
 		<tstamp />
 	</target>
@@ -46,15 +39,12 @@
 		<zip basedir="${src}" destfile="${dist.dir}/${app.name}.zip" />
 	</target>
 
-	<!--
-	<target name="deploy" depends="dist">
-		<echo message="Deploying application to Roku at http://${ROKU_DEV_TARGET}" />
-		<httpmpost url="http://${ROKU_DEV_TARGET}/plugin_install">
-			<postFile name="archive" file="${distfile}" />
-			<poststring name="mysubmit" value="Install" />
-		</httpmpost>
+	<target name="deploy" depends="compile">
+		<echo message="posting ${dist.dir}/${app.name}.zip to http://${ROKU_DEV_TARGET}/plugin_install"/>
+		<post to="http://${ROKU_DEV_TARGET}/plugin_install" file="${dist.dir}/${app.name}.zip" rawFile="true" verbose="true">
+			
+		</post>
 	</target>
-		-->
 
 	<target name="clean">
 		<delete dir="${dist}" />
