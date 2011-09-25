@@ -129,8 +129,8 @@ Function showSpringboardScreen(msg as object) As Boolean
     screen.AllowUpdates(false)
     
     item = { ContentType:"episode"
-               SDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
-               HDPosterUrl:"file://pkg:/images/CraigVenter-2008.jpg"
+               SDPosterUrl:"file://pkg:/images/video.png"
+               HDPosterUrl:"file://pkg:/images/video.png"
                IsHD:False
                HDBranded:False
                ShortDescriptionLine1:"Some hard-coded text here."
@@ -140,7 +140,7 @@ Function showSpringboardScreen(msg as object) As Boolean
                StarRating:"80"
                Length:1972
                Categories:["Technology","Talk"]
-               Title:"Craig Venter asks, Can we create new life out of our digital universe?"
+               Title:"Some Video"
                }
                
     if item <> invalid and type(item) = "roAssociativeArray"
@@ -178,8 +178,6 @@ Function showSpringboardScreen(msg as object) As Boolean
             print "wrong type.... type=";msg.GetType(); " msg: "; msg.GetMessage()
         endif
     end while
-
-
     return true
 End Function
 
@@ -286,34 +284,6 @@ Function displayVideo(args As Dynamic)
     end while
 End Function
 
-
-Function displayBase64()
-    ba = CreateObject("roByteArray")
-    str = "Aladdin:open sesame"
-    ba.FromAsciiString(str)
-    result = ba.ToBase64String() 
-    print result
-
-    ba2 = CreateObject("roByteArray")
-    ba2.FromBase64String(result)
-    result2 = ba2.ToAsciiString()
-    print result2
-End Function
-
-'**********************************************************
-'** When a poster on the home screen is selected, we call
-'** this function passing an roAssociativeArray with the 
-'** ContentMetaData for the selected show.  This data should 
-'** be sufficient for the springboard to display
-'**********************************************************
-Function displayShowDetailScreen(category as Object, showIndex as Integer) As Integer
-
-    'add code to create springboard, for now we do nothing
-    return 1
-
-End Function
-
-
 '**************************************************************
 '** Return the list of categories to display in the filter
 '** banner. The result is an roArray containing the names of 
@@ -323,7 +293,7 @@ Function getCategoryList() As Object
 
     categoryList = CreateObject("roArray", 10, true)
 
-    categoryList = [ "Comedy", "Drama", "News", "Reality", "Daytime"  ]
+    categoryList = [ "Videos", "Music"]
     return categoryList
 
 End Function
@@ -341,22 +311,16 @@ Function getShowsForCategoryItem(category As Object) As Object
 
     print "getting shows for category "; category
 
-    showList = [
+    showList = [{
+            ShortDescriptionLine1:"Nothing here yet",
+        }]
+
+    if category = "Videos"
+        showList = [
         {
-            ShortDescriptionLine1:"Show #1",
-            ShortDescriptionLine2:"Short Description for Show #1",
-        }
-        {
-            ShortDescriptionLine1:"Show #2",
-            ShortDescriptionLine2:"Short Description for Show #2",
-            HDPosterUrl:"pkg:/media/bogusFileName_hd.jpg",
-            SDPosterUrl:"pkg:/media/bogusFileName_hd.jpg"
-        }
-        {
-            ShortDescriptionLine1:"Show #3",
-            ShortDescriptionLine2:"Short Description for Show #3",
-        }
-    ]
+            ShortDescriptionLine1:"The only one show available",
+        }]
+    end if
 
     return showList
 
