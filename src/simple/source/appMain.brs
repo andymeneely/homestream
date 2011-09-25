@@ -95,26 +95,6 @@ Function showPosterScreen(screen As Object) As Integer
 
 End Function
 
-Sub showChoices()
-    screen = CreateObject("roPosterScreen")
-    screen.SetBreadcrumbText("", "breadcrumb")
-    
-    screen.Show()
-    content = []
-    content.Push({
-                SDPosterUrl: "pkg:/images/MainMenu_Icon_Side_SD43.png"
-                HDPosterUrl: "pkg:/images/MainMenu_Icon_Side_HD.png"
-                ShortDescriptionLine1: "Something contentish"
-            })
-    screen.SetContentList(content)
-
-    
-    'showSpringboardScreen(itemVenter)
-End Sub
-
-
-
-
 '*************************************************************
 '** showSpringboardScreen()
 '*************************************************************
@@ -158,6 +138,10 @@ Function showSpringboardScreen(msg as object) As Boolean
 
     downKey=3
     selectKey=6
+    
+    
+    printFeed()
+    
     while true
         msg = wait(0, screen.GetMessagePort())
         if type(msg) = "roSpringboardScreenEvent"
@@ -326,3 +310,50 @@ Function getShowsForCategoryItem(category As Object) As Object
 
 End Function
 
+'******************************************************************
+'** Given a connection object for a category feed, fetch,
+'** parse and build the tree for the feed.  the results are
+'** stored hierarchically with parent/child relationships
+'** with a single default node named Root at the root of the tree
+'******************************************************************
+Function printFeed() As Dynamic
+
+    'http = NewHttp("http://192.168.0.3/videos/feed.xml")
+    http = NewHttp("http://192.168.0.3/videos/categories.xml")
+
+    print "url: "; http.Http.GetUrl()
+
+    'm.Timer.Mark()
+    rsp = http.GetToStringWithRetry()
+    'print "Took: ";m.Timer
+
+    'm.Timer.Mark()
+    xml=CreateObject("roXMLElement")
+    if not xml.Parse(rsp) then
+         print "Can't parse feed"
+        return invalid
+    endif
+    'Dbg("Parse Took: ", m.Timer)
+
+    'm.Timer.Mark()
+    if xml.category = invalid then
+        print "no categories tag"
+        return invalid
+    endif
+
+    if xml.category[0].GetName() <> "category" then
+        print "no initial category tag"
+        return invalid
+    endif
+
+    print "begin category node parsing"
+
+    categories = xml.GetChildElements()
+    print "number of categories: " + itostr(categories.Count())
+    for each element in categories 
+        print element@Description
+    next
+    
+    return xml
+
+End Function
