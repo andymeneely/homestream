@@ -75,20 +75,21 @@ Function showPosterScreen(screen As Object) As Integer
     screen.SetContentList(getShowsForCategoryItem(categoryList[0]))
     screen.Show()
 
+    videos = getVideoList()
+
     while true
         msg = wait(0, screen.GetMessagePort())
         if type(msg) = "roPosterScreenEvent" then
             print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
             if msg.isListFocused() then
                 'get the list of shows for the currently selected item
-                videos=getShowsForCategoryItem(categoryList[msg.GetIndex()])
                 screen.SetContentList(videos)
                 print "list focused | current category = "; msg.GetIndex()
             else if msg.isListItemFocused() then
                 print"list item focused | current show = "; msg.GetIndex()
             else if msg.isListItemSelected() then
                 print "list item selected | show index = "; msg.GetIndex();"show: ";videos[msg.GetIndex()]
-                showSpringboardScreen(videos[msg.GetIndex()])
+                showSpringboardScreen(videos[msg.GetIndex()].ShortDescriptionLine1)
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -99,11 +100,11 @@ End Function
 '*************************************************************
 '** showSpringboardScreen()
 '*************************************************************
-Function showSpringboardScreen(video as object) As Boolean
+Function showSpringboardScreen(videoName as Object) As Boolean
     port = CreateObject("roMessagePort")
     screen = CreateObject("roSpringboardScreen")
 
-    print "showSpringboardScreen showing ";video
+    print "showSpringboardScreen showing ";videoName
     
     screen.SetMessagePort(port)
     screen.AllowUpdates(false)
@@ -113,14 +114,14 @@ Function showSpringboardScreen(video as object) As Boolean
                HDPosterUrl:"file://pkg:/images/video.png"
                IsHD:False
                HDBranded:False
-               ShortDescriptionLine1:"Some hard-coded text here."
+               ShortDescriptionLine1:""
                ShortDescriptionLine2:""
-               Description:"More descriptions here."
+               Description:""
                Rating:"NR"
                StarRating:"80"
                Length:1972
-               Categories:["Technology","Talk"]
-               Title:"Some Video"
+               Categories:[]
+               Title:videoName
                }
                
     if item <> invalid and type(item) = "roAssociativeArray"
@@ -148,7 +149,8 @@ Function showSpringboardScreen(video as object) As Boolean
             else if msg.isButtonPressed()
                     print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
                     if msg.GetIndex() = 1
-                         displayVideo("")
+                         print "Going to display video: ";videoName
+                         displayVideo(videoName)
                     else if msg.GetIndex() = 2
                          return true
                     endif
@@ -164,9 +166,8 @@ End Function
 
 
 '*************************************************************
-'** displayVideo()
+'** Actually show the video
 '*************************************************************
-
 Function displayVideo(videoName as Object)
     print "Displaying video: ";videoName
     p = CreateObject("roMessagePort")
@@ -176,7 +177,7 @@ Function displayVideo(videoName as Object)
     'Swap the commented values below to play different video clips...
     
     urls = ["http://192.168.0.3/videos/" + videoName]
-    
+    print "Using URL: ";urls
     videoclip = CreateObject("roAssociativeArray")
     videoclip.StreamBitrates = [0]
     videoclip.StreamUrls = urls
