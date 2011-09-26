@@ -3,30 +3,22 @@
 	<!--
 	-->
 	<artifact:dependencies pathId="dependency.classpath">
-		<dependency groupId="ant-contrib" artifactId="ant-contrib" version="1.0b3" />
+		<dependency groupId="fikin-ant" artifactId="fikin-ant" version="1.7.3" />
 	</artifact:dependencies>
 
-	<taskdef resource="net/sf/antcontrib/antlib.xml" classpathref="dependency.classpath" />
+	<taskdef name="httpmpost" classname="net.sf.fikin.ant.httpclientanttask.AntMultipartPostMethod" classpathref="dependency.classpath">
+	</taskdef>
 
 	<description>
             A simple Ant build file that bundles the source and images folders into a zip
            and pushes it to your Roku (see local.properties for configuration).       
         </description>
 
-
-	<!-- deploy task requires fikin-ant tasks and dependent libraries -->
-
-	<!-- http://www.postbin.org/1ktfgc2 -->
-	<!-- requires the following JARs:
-            fikin-ant-1.7.3.jar
-            commons-httpclient-3.1.jar
-            commons-logging-1.1.1.jar
-            commons-codec-1.4.jar -->
-
 	<!-- set global properties for this build -->
 	<property name="app.name" value="homestream" />
 	<property name="src" location="${basedir}/src/${app.name}" />
 	<property name="dist.dir" location="${basedir}/dist" />
+	<property name="dist.file" location="${dist.dir}/${app.name}.zip" />
 	<!-- load environment specific properties -->
 	<property file="local.properties" />
 
@@ -36,14 +28,19 @@
 
 	<!-- "compile" all resources, possibly do some filtering etc -->
 	<target name="compile" depends="init">
-		<zip basedir="${src}" destfile="${dist.dir}/${app.name}.zip" />
+		<zip basedir="${src}" destfile="${dist.file}" />
 	</target>
 
+	<!-- http://www.postbin.org/1ktfgc2 -->
+
 	<target name="deploy" depends="compile">
-		<echo message="posting ${dist.dir}/${app.name}.zip to http://${ROKU_DEV_TARGET}/plugin_install"/>
-		<post to="http://${ROKU_DEV_TARGET}/plugin_install" file="${dist.dir}/${app.name}.zip" rawFile="true" verbose="true">
-			
-		</post>
+		<echo message="posting ${dist.file} to http://${ROKU_DEV_TARGET}/plugin_install" />
+		<!--
+		<httpmpost url="http://${ROKU_DEV_TARGET}/plugin_install">
+			<postFile name="archive" file="${dist.file}" />
+			<poststring name="mysubmit" value="Install" />
+		</httpmpost>
+		-->
 	</target>
 
 	<target name="clean">
