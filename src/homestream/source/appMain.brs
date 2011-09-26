@@ -1,7 +1,8 @@
-' ********************************************************************
-' **  Andy's Hardcoded Video Play
-' **  Copyright (c) 2009 Roku Inc. All Rights Reserved.
-' ********************************************************************
+'********************************
+'*                              *
+'* Andy's hacktastic HomeStream *
+'*                              *
+'********************************
 
 Sub Main()
     'initialize theme attributes like titles, logos and overhang color
@@ -16,7 +17,11 @@ Sub Main()
  
     'set to go, time to get started
     showPosterScreen(screen)
- 
+    
+    'shortcut straight to a hard-coded video
+    'video = ""
+    'print "Shortcutting straight to video: ";video
+    'displayVideo("")
 End Sub
 
 '*************************************************************
@@ -76,35 +81,29 @@ Function showPosterScreen(screen As Object) As Integer
             print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
             if msg.isListFocused() then
                 'get the list of shows for the currently selected item
-               videos=getShowsForCategoryItem(categoryList[msg.GetIndex()])
-               screen.SetContentList(videos)
+                videos=getShowsForCategoryItem(categoryList[msg.GetIndex()])
+                screen.SetContentList(videos)
                 print "list focused | current category = "; msg.GetIndex()
             else if msg.isListItemFocused() then
                 print"list item focused | current show = "; msg.GetIndex()
             else if msg.isListItemSelected() then
                 print "list item selected | show index = "; msg.GetIndex();"show: ";videos[msg.GetIndex()]
-                'if you had a list of shows, the index of the current item 
-                'is probably the right show, so you'd do something like this
-                'm.curShow = displayShowDetailScreen(showList[msg.GetIndex()])
                 showSpringboardScreen(videos[msg.GetIndex()])
             else if msg.isScreenClosed() then
                 return -1
             end if
         end If
     end while
-
-
 End Function
 
 '*************************************************************
 '** showSpringboardScreen()
 '*************************************************************
-
-Function showSpringboardScreen(msg as object) As Boolean
+Function showSpringboardScreen(video as object) As Boolean
     port = CreateObject("roMessagePort")
     screen = CreateObject("roSpringboardScreen")
 
-    print "showSpringboardScreen on ";msg
+    print "showSpringboardScreen showing ";video
     
     screen.SetMessagePort(port)
     screen.AllowUpdates(false)
@@ -168,72 +167,22 @@ End Function
 '** displayVideo()
 '*************************************************************
 
-Function displayVideo(args As Dynamic)
-    print "Displaying video: "
+Function displayVideo(videoName as Object)
+    print "Displaying video: ";videoName
     p = CreateObject("roMessagePort")
     video = CreateObject("roVideoScreen")
     video.setMessagePort(p)
 
-    'bitrates  = [0]          ' 0 = no dots, adaptive bitrate
-    'bitrates  = [348]    ' <500 Kbps = 1 dot
-    'bitrates  = [664]    ' <800 Kbps = 2 dots
-    'bitrates  = [996]    ' <1.1Mbps  = 3 dots
-    'bitrates  = [2048]    ' >=1.1Mbps = 4 dots
-    bitrates  = [0]    
-
     'Swap the commented values below to play different video clips...
-    urls = ["http://192.168.0.3/videos/DAMAGES_SEASON_3_DISC_1-1.m4v"]
-    qualities = ["SD"]
-    StreamFormat = "mp4"
-    title = "Damages, Episode 3-1"
-    srt = ""
-
-    'urls = ["http://video.ted.com/talks/podcast/DanGilbert_2004_480.mp4"]
-    'qualities = ["HD"]
-    'StreamFormat = "mp4"
-    'title = "Dan Gilbert asks, Why are we happy?"
-
-    ' Apple's HLS test stream
-    'urls = ["http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8"]
-    'qualities = ["SD"]
-    'streamformat = "hls"
-    'title = "Apple BipBop Test Stream"
-
-    ' Big Buck Bunny test stream from Wowza
-    'urls = ["http://ec2-174-129-153-104.compute-1.amazonaws.com:1935/vod/smil:BigBuckBunny.smil/playlist.m3u8"]
-    'qualities = ["SD"]
-    'streamformat = "hls"
-    'title = "Big Buck Bunny"
-
-    if type(args) = "roAssociativeArray"
-        if type(args.url) = "roString" and args.url <> "" then
-            urls[0] = args.url
-        end if
-        if type(args.StreamFormat) = "roString" and args.StreamFormat <> "" then
-            StreamFormat = args.StreamFormat
-        end if
-        if type(args.title) = "roString" and args.title <> "" then
-            title = args.title
-        else 
-            title = ""
-        end if
-        if type(args.srt) = "roString" and args.srt <> "" then
-            srt = args.StreamFormat
-        else 
-            srt = ""
-        end if
-    end if
+    
+    urls = ["http://192.168.0.3/videos/" + videoName]
     
     videoclip = CreateObject("roAssociativeArray")
-    videoclip.StreamBitrates = bitrates
+    videoclip.StreamBitrates = [0]
     videoclip.StreamUrls = urls
-    videoclip.StreamQualities = qualities
-    videoclip.StreamFormat = StreamFormat
-    videoclip.Title = title
-    print "srt = ";srt
-    if srt <> invalid and srt <> "" then
-        videoclip.SubtitleUrl = srt
-    end if
+    videoclip.StreamQualities = ["SD"]
+    videoclip.StreamFormat = "mp4"
+    videoclip.Title = videoName
     
     video.SetContent(videoclip)
     video.show()
@@ -272,14 +221,10 @@ End Function
 '** all of the categories. All just static data for the example.
 '***************************************************************
 Function getCategoryList() As Object
-
     categoryList = CreateObject("roArray", 10, true)
-
     categoryList = [ "Videos", "Music"]
     return categoryList
-
 End Function
-
 
 '********************************************************************
 '** Given the category from the filter banner, return an array 
@@ -290,19 +235,12 @@ End Function
 '** this data dynamically, so content for each category is dynamic
 '********************************************************************
 Function getShowsForCategoryItem(category As Object) As Object
-
     print "getting shows for category "; category
-
-    showList = [{
-            ShortDescriptionLine1:"Nothing here yet",
-        }]
-
+    showList = [{ ShortDescriptionLine1:"Nothing here yet" }]
     if category = "Videos"
         showList = getVideoList() 
     end if
-
     return showList
-
 End Function
 
 '******************************************************************
@@ -313,24 +251,18 @@ End Function
 '******************************************************************
 Function getVideoList() As Dynamic
 
-    'http = NewHttp("http://192.168.0.3/videos/feed.xml")
     http = NewHttp("http://192.168.0.3/videos/feed.php")
 
     print "url: "; http.Http.GetUrl()
 
-    'm.Timer.Mark()
     rsp = http.GetToStringWithRetry()
-    'print "Took: ";m.Timer
-
-    'm.Timer.Mark()
+    
     xml=CreateObject("roXMLElement")
     if not xml.Parse(rsp) then
          print "Can't parse feed"
         return invalid
     endif
-    'Dbg("Parse Took: ", m.Timer)
-
-    'm.Timer.Mark()
+    
     if xml.videos = invalid then
         print "no videos tag"
         return invalid
@@ -349,7 +281,5 @@ Function getVideoList() As Dynamic
     next
     
     print "done video node parsing"
-    
     return video
-
 End Function
