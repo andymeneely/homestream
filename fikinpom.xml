@@ -1,0 +1,36 @@
+
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>fikin-ant</groupId>
+	<artifactId>fikin-ant</artifactId>
+	<packaging>jar</packaging>
+	<name>Fikin Ant taks</name>
+	<version>1.7.3</version>
+	<url></url>
+	<licenses>
+		<license>
+			<url></url>
+		</license>
+	</licenses>
+	<scm>
+		<url></url>
+	</scm>
+	<description>A collection of tasks (and at one point maybe types and other tools) for Apache Ant</description>
+	<dependencies>
+		<dependency>
+			<groupId>commons-httpclient</groupId>
+			<artifactId>commons-httpclient</artifactId>
+			<version>3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+	</dependencies>
+</project>
