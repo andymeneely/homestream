@@ -8,8 +8,18 @@ Sub Main()
     'initialize theme attributes like titles, logos and overhang color
     initTheme()
 
+    'prepare the screen for display and get ready to begin
+    screen=preShowPosterScreen("", "")
+    if screen=invalid then
+        print "unexpected error in preShowPosterScreen"
+        return
+    end if
+
+    'set to go, time to get started
+    showPosterScreen(screen)
+
     'good to go!
-    showInitialChoice()
+    'showInitialChoice()
     
     'shortcut straight to a hard-coded video
     'video = ""
@@ -27,7 +37,7 @@ Sub showInitialChoice()
     while true
         msg = wait(0, screen.GetMessagePort())
         if type(msg) = "roPosterScreenEvent" then
-            print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
+            print "showInitialChoice | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
             if msg.isListFocused() then
                print "list focused | current category = "; msg.GetIndex()
             else if msg.isListItemFocused() then
