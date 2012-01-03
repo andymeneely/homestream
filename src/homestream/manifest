@@ -1,5 +1,5 @@
-title=TEST VERSION Homestream
-subtitle=TEST VERSION Andy's hacktastic video player
+title=Homestream
+subtitle=Andy's hacktastic video player
 mm_icon_focus_hd=pkg:/images/MainMenu_Icon_Center_HD.png
 mm_icon_side_hd=pkg:/images/MainMenu_Icon_Side_HD.png
 mm_icon_focus_sd=pkg:/images/MainMenu_Icon_Center_SD43.png
