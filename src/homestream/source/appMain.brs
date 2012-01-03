@@ -17,52 +17,12 @@ Sub Main()
 
     'set to go, time to get started
     showPosterScreen(screen)
-
-    'good to go!
-    'showInitialChoice()
     
     'shortcut straight to a hard-coded video
     'video = ""
     'print "Shortcutting straight to video: ";video
     'displayVideo("")
 End Sub
-
-Sub showInitialChoice()
-    port=CreateObject("roMessagePort")
-    screen = CreateObject("roPosterScreen")
-    screen.SetMessagePort(port)
-    screen.SetListStyle("arced-portrait")
-    screen.SetContentList(["Videos", "Music"])
-
-    while true
-        msg = wait(0, screen.GetMessagePort())
-        if type(msg) = "roPosterScreenEvent" then
-            print "showInitialChoice | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
-            if msg.isListFocused() then
-               print "list focused | current category = "; msg.GetIndex()
-            else if msg.isListItemFocused() then
-                print"list item focused | current show = "; msg.GetIndex()
-            else if msg.isListItemSelected() then
-                print "list item selected | show index = "; msg.GetIndex();"show: ";videos[msg.GetIndex()]
-                if msg.GetIndex = 1 then
-                    'prepare the screen for display and get ready to begin
-                    screen2=preShowPosterScreen("", "")
-                    if screen2=invalid then
-                        print "unexpected error in preShowPosterScreen"
-                        return
-                    end if
-                    showPosterScreen(screen2)    
-                endif
-            else if msg.isScreenClosed() then
-                return
-            end if
-        end If
-    end while
-
-    'set to go, time to get started
-End Sub
-
-
 
 '*************************************************************
 '** Set the configurable theme attributes for the application
@@ -99,7 +59,7 @@ Function preShowPosterScreen(breadA=invalid, breadB=invalid) As Object
     if breadA<>invalid and breadB<>invalid then
         screen.SetBreadcrumbText(breadA, breadB)
     end if
-    screen.SetListStyle("flat-category")
+    screen.SetListStyle("arced-landscape")
     return screen
 End Function
 
