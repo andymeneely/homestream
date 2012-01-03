@@ -65,13 +65,10 @@ Function preShowPosterScreen(breadA=invalid, breadB=invalid) As Object
     screen.SetupLists(rowTitles.Count())
     screen.SetListNames(rowTitles)
     screen.SetGridStyle("flat-movies")
-    
-    'Might need this (leftover from previous)
-    'if breadA<>invalid and breadB<>invalid then
-    '    screen.SetBreadcrumbText(breadA, breadB)
-    'end if
-    'screen.SetBreadcrumbText(breadA, breadB)
-    
+    'No breadcrumb text for you!
+    screen.SetBreadcrumbEnabled(false)
+    'Show the white description box in the lower-right corner
+    screen.SetDescriptionVisible(true)
     
     return screen
 End Function
