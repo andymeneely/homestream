@@ -54,12 +54,25 @@ End Sub
 '******************************************************
 Function preShowPosterScreen(breadA=invalid, breadB=invalid) As Object
     port=CreateObject("roMessagePort")
-    screen = CreateObject("roPosterScreen")
-    screen.SetMessagePort(port)
-    if breadA<>invalid and breadB<>invalid then
-        screen.SetBreadcrumbText(breadA, breadB)
-    end if
-    screen.SetListStyle("arced-landscape")
+    
+    'A multi-row, Netflix-like thing
+    screen = CreateObject("roGridScreen")
+    screen.setMessagePort(port)
+    rowTitles = CreateObject("roArray", 3, true)
+    rowTitles.Push("Row 1")
+    rowTitles.Push("Row 2")
+    rowTitles.Push("Row 3")
+    screen.SetupLists(rowTitles.Count())
+    screen.SetListNames(rowTitles)
+    screen.SetGridStyle("flat-movies")
+    
+    'Might need this (leftover from previous)
+    'if breadA<>invalid and breadB<>invalid then
+    '    screen.SetBreadcrumbText(breadA, breadB)
+    'end if
+    'screen.SetBreadcrumbText(breadA, breadB)
+    
+    
     return screen
 End Function
 
@@ -72,7 +85,10 @@ Function showPosterScreen(screen As Object) As Integer
 
     categoryList = getCategoryList()
     screen.SetListNames(categoryList)
-    screen.SetContentList(getShowsForCategoryItem(categoryList[0]))
+    
+    'Just dump everything into the same thing for now
+    screen.SetContentList(0, getShowsForCategoryItem(categoryList[0]))
+    
     screen.Show()
 
     videos = getVideoList()
@@ -93,7 +109,17 @@ Function showPosterScreen(screen As Object) As Integer
             else if msg.isScreenClosed() then
                 return -1
             end if
-        end If
+        else if type(msg) = "roGridScreenEvent" then
+            print "showPosterScreen | msg = "; msg.GetMessage() " | row = "; msg.GetIndex()  " index = "; msg.GetData()
+            if msg.isListItemFocused() then
+                print "list item focused | msg = "; msg.GetMessage() " | row = "; msg.GetIndex()  " index = "; msg.GetData()
+            else if msg.isListItemSelected() then
+                print "list item selected | show index = "; msg.GetData();"show: ";videos[msg.GetData()]
+                showSpringboardScreen(videos[msg.GetData()].ShortDescriptionLine1)
+            else if msg.isScreenClosed() then
+                return -1
+            end if  
+        end if
     end while
 End Function
 
