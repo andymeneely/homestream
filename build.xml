@@ -16,9 +16,11 @@
 
 	<!-- set global properties for this build -->
 	<property name="app.name" value="homestream" />
+	<!-- Make this -test or something if you don't want it to be the normal thing -->
+	<property name="app.name.testflag" value="-test"/>
 	<property name="src" location="${basedir}/src/${app.name}" />
 	<property name="dist.dir" location="${basedir}/dist" />
-	<property name="dist.file" location="${dist.dir}/${app.name}.zip" />
+	<property name="dist.file" location="${dist.dir}/${app.name}${app.name.testflag}.zip" />
 	<!-- load environment specific properties -->
 	<property file="local.properties" />
 
