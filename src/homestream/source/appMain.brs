@@ -109,6 +109,7 @@ Function showPosterScreen(screen As Object) As Integer
         else if type(msg) = "roGridScreenEvent" then
             print "showPosterScreen | msg = "; msg.GetMessage() " | row = "; msg.GetIndex()  " index = "; msg.GetData()
             if msg.isListItemFocused() then
+                screen.SetContentList(msg.GetIndex(), videos)
                 print "list item focused | msg = "; msg.GetMessage() " | row = "; msg.GetIndex()  " index = "; msg.GetData()
             else if msg.isListItemSelected() then
                 print "list item selected | show index = "; msg.GetData();"show: ";videos[msg.GetData()]
@@ -300,6 +301,8 @@ Function getVideoList() As Dynamic
         print "Adding file: ";v@file
         video.Push({
             ShortDescriptionLine1: v@file,
+            Description: v@file,
+            Title: v@file,
             URL: v@file,
         })
     next
