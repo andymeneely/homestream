@@ -21,7 +21,7 @@
         </description>
 
 	<!-- set global properties for this build -->
-	<property name="app.name" value="adabible" />
+	<property name="app.name" value="homestream" />
 	<!-- Make this -test or something if you don't want it to be the normal thing -->
 	<property name="app.name.testflag" value="-test" />
 	<property name="src" location="${basedir}/src/${app.name}" />
