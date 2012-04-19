@@ -147,8 +147,8 @@ Function showSpringboardScreen(vid as Object) As Boolean
                HDPosterUrl:"file://pkg:/images/video.png"
                IsHD:False
                HDBranded:False
-               ShortDescriptionLine1:""
-               ShortDescriptionLine2:""
+               ShortDescriptionLine1:vid.Description
+               ShortDescriptionLine2:vid.PubDate
                Description:""
                Rating:"NR"
                StarRating:"80"
@@ -308,6 +308,7 @@ Function getVideoList() As Dynamic
             ShortDescriptionLine1: i.description.GetText(),
             Description: i.description.GetText(),
             Title: i.title.GetText(),
+            PubDate: i.pubDate.GetText(),
             URL: i.guid.GetText(),
         })
     next
