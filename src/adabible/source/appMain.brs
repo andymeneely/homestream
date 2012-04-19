@@ -88,7 +88,16 @@ Function showPosterScreen(screen As Object) As Integer
     
     screen.Show()
 
-    videos = getVideoList()
+    'videos = getVideoList()
+    
+    'Use this if you just want to hardcode the video URL for testing purposes
+    videos = []
+    videos.Push({
+            ShortDescriptionLine1: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+            Description: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+            Title: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+            URL: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+        })
 
     while true
         msg = wait(0, screen.GetMessagePort())
@@ -200,7 +209,7 @@ Function displayVideo(videoName as Object)
 
     'Swap the commented values below to play different video clips...
     
-    urls = ["http://192.168.0.3/videos/" + videoName]
+    urls = [videoName]
     print "Using URL: ";urls
     videoclip = CreateObject("roAssociativeArray")
     videoclip.StreamBitrates = [0]
@@ -277,6 +286,7 @@ End Function
 Function getVideoList() As Dynamic
 
     http = NewHttp("http://192.168.0.3/videos/feed.php")
+    'http = NewHttp("http://www.adabible.org/media/video/2012/")
 
     print "url: "; http.Http.GetUrl()
 
