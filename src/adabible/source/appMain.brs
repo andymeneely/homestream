@@ -1,6 +1,7 @@
 '********************************
 '*                              *
-'* Andy's hacktastic HomeStream *
+'*     Andy's hacktastic        *
+'*   Ada Bible Video Stream     *
 '*                              *
 '********************************
 
@@ -88,22 +89,21 @@ Function showPosterScreen(screen As Object) As Integer
     
     screen.Show()
 
-    'videos = getVideoList()
+    videos = getVideoList()
     
     'Use this if you just want to hardcode the video URL for testing purposes
-    videos = []
-    videos.Push({
-            ShortDescriptionLine1: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
-            Description: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
-            Title: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
-            URL: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
-        })
-
+    'videos = []
+    'videos.Push({ 
+    '        ShortDescriptionLine1: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+    '        Description: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+    '        Title: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+    '        URL: "http://www.adabible.org/media/video/2012/2012-04-15brady.m4v",
+    '    })
     while true
         msg = wait(0, screen.GetMessagePort())
         if type(msg) = "roPosterScreenEvent" then
             print "showPosterScreen | msg = "; msg.GetMessage() " | index = "; msg.GetIndex()
-            if msg.isListFocused() then
+			if msg.isListFocused() then
                 'get the list of shows for the currently selected item
                 screen.SetContentList(videos)
                 print "list focused | current category = "; msg.GetIndex()
@@ -111,7 +111,7 @@ Function showPosterScreen(screen As Object) As Integer
                 print"list item focused | current show = "; msg.GetIndex()
             else if msg.isListItemSelected() then
                 print "list item selected | show index = "; msg.GetIndex();"show: ";videos[msg.GetIndex()]
-                showSpringboardScreen(videos[msg.GetIndex()].ShortDescriptionLine1)
+                showSpringboardScreen(videos[msg.GetIndex()])
             else if msg.isScreenClosed() then
                 return -1
             end if
@@ -122,7 +122,7 @@ Function showPosterScreen(screen As Object) As Integer
                 print "list item focused | msg = "; msg.GetMessage() " | row = "; msg.GetIndex()  " index = "; msg.GetData()
             else if msg.isListItemSelected() then
                 print "list item selected | show index = "; msg.GetData();"show: ";videos[msg.GetData()]
-                showSpringboardScreen(videos[msg.GetData()].ShortDescriptionLine1)
+                showSpringboardScreen(videos[msg.GetData()])
             else if msg.isScreenClosed() then
                 return -1
             end if  
@@ -133,11 +133,11 @@ End Function
 '*************************************************************
 '** showSpringboardScreen()
 '*************************************************************
-Function showSpringboardScreen(videoName as Object) As Boolean
+Function showSpringboardScreen(vid as Object) As Boolean
     port = CreateObject("roMessagePort")
     screen = CreateObject("roSpringboardScreen")
 
-    print "showSpringboardScreen showing ";videoName
+    print "showSpringboardScreen showing ";vid.title
     
     screen.SetMessagePort(port)
     screen.AllowUpdates(false)
@@ -154,7 +154,7 @@ Function showSpringboardScreen(videoName as Object) As Boolean
                StarRating:"80"
                Length:1972
                Categories:[]
-               Title:videoName
+               Title:vid.title
                }
                
     if item <> invalid and type(item) = "roAssociativeArray"
@@ -182,8 +182,8 @@ Function showSpringboardScreen(videoName as Object) As Boolean
             else if msg.isButtonPressed()
                     print "Button pressed: "; msg.GetIndex(); " " msg.GetData()
                     if msg.GetIndex() = 1
-                         print "Going to display video: ";videoName
-                         displayVideo(videoName)
+                         print "Going to display video: ";vid.title;"@";vid.url
+                         displayVideo(vid)
                     else if msg.GetIndex() = 2
                          return true
                     endif
@@ -201,22 +201,22 @@ End Function
 '*************************************************************
 '** Actually show the video
 '*************************************************************
-Function displayVideo(videoName as Object)
-    print "Displaying video: ";videoName
+Function displayVideo(vid as Object)
+    print "Displaying video: ";vid.title
     p = CreateObject("roMessagePort")
     video = CreateObject("roVideoScreen")
     video.setMessagePort(p)
 
     'Swap the commented values below to play different video clips...
     
-    urls = [videoName]
+    urls = [vid.url]
     print "Using URL: ";urls
     videoclip = CreateObject("roAssociativeArray")
     videoclip.StreamBitrates = [0]
     videoclip.StreamUrls = urls
     videoclip.StreamQualities = ["SD"]
     videoclip.StreamFormat = "mp4"
-    videoclip.Title = videoName
+    videoclip.Title = vid.title
     
     video.SetContent(videoclip)
     video.show()
@@ -285,8 +285,8 @@ End Function
 '******************************************************************
 Function getVideoList() As Dynamic
 
-    http = NewHttp("http://192.168.0.3/videos/feed.php")
-    'http = NewHttp("http://www.adabible.org/media/video/2012/")
+    'http = NewHttp("http://192.168.0.3/videos/feed.php")
+    http = NewHttp("http://feeds.feedburner.com/AdaBibleChurch/SermonVideo")
 
     print "url: "; http.Http.GetUrl()
 
@@ -298,22 +298,17 @@ Function getVideoList() As Dynamic
         return invalid
     endif
     
-    if xml.videos = invalid then
-        print "no videos tag"
-        return invalid
-    endif
-
     print "begin video node parsing"
-    xmllist = xml.GetNamedElements("video")
-
-    video = []
-    for each v in xmllist
-        print "Adding file: ";v@file
+    xmllist = xml.channel.item
+	video = []
+    for each i in xmllist
+    	print "Parsing item: ";i.title.GetText()
+    	'print "GUID is: " i.guid.GetText()
         video.Push({
-            ShortDescriptionLine1: v@file,
-            Description: v@file,
-            Title: v@file,
-            URL: v@file,
+            ShortDescriptionLine1: i.description.GetText(),
+            Description: i.description.GetText(),
+            Title: i.title.GetText(),
+            URL: i.guid.GetText(),
         })
     next
     
