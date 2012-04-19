@@ -2,7 +2,13 @@
 
 	<!--
 	-->
+	<path id="maven-ant-tasks.classpath" path="${ant.home}/lib/maven-ant-tasks-2.1.3.jar" />
+	<typedef resource="org/apache/maven/artifact/ant/antlib.xml" uri="antlib:org.apache.maven.artifact.ant" classpathref="maven-ant-tasks.classpath" />
+	
+	<artifact:remoteRepository id="remote.repository" url="file://g:/maven-repository" />
+	
 	<artifact:dependencies pathId="dependency.classpath">
+		<remoteRepository refid="remote.repository" />
 		<dependency groupId="fikin-ant" artifactId="fikin-ant" version="1.7.3" />
 	</artifact:dependencies>
 
@@ -15,9 +21,9 @@
         </description>
 
 	<!-- set global properties for this build -->
-	<property name="app.name" value="homestream" />
+	<property name="app.name" value="adabible" />
 	<!-- Make this -test or something if you don't want it to be the normal thing -->
-	<property name="app.name.testflag" value="-test"/>
+	<property name="app.name.testflag" value="-test" />
 	<property name="src" location="${basedir}/src/${app.name}" />
 	<property name="dist.dir" location="${basedir}/dist" />
 	<property name="dist.file" location="${dist.dir}/${app.name}${app.name.testflag}.zip" />
@@ -36,6 +42,7 @@
 	<!-- http://www.postbin.org/1ktfgc2 -->
 
 	<target name="deploy" depends="compile">
+		<echo message="${ant.home}" />
 		<echo message="posting ${dist.file} to http://${ROKU_DEV_TARGET}/plugin_install" />
 		<httpmpost url="http://${ROKU_DEV_TARGET}/plugin_install">
 			<postFile name="archive" file="${dist.file}" />

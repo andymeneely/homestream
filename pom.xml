@@ -5,8 +5,13 @@
 	<artifactId>HomeStream</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<repositories>
+		<repository>
+			<id>andy-maven</id>
+			<url>https://raw.github.com/apmeneel/andy-maven/master/releases</url>
+		</repository>
+	</repositories>
 	<dependencies>
-		
 		<dependency>
 			<groupId>fikin-ant</groupId>
 			<artifactId>fikin-ant</artifactId>
